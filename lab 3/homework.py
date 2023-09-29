@@ -1,35 +1,86 @@
 import requests
 from bs4 import BeautifulSoup
+import json
 
-def scrape_links(max_pages, current_page, urls, found_links):
-    base_url = "https://999.md"
-    current_url = urls[current_page]
 
-    response = requests.get(current_url)
-    soup = BeautifulSoup(response.content, "html.parser")
+def extract_text(item):
+    return item.text if item else None
 
-    # Extracting specific links
-    for anchor in soup.find_all('a', href=True, class_='js-item-ad'):
-        href = str(anchor.get('href'))
-        if href[1] != 'b':
-            complete_url = base_url + href
-            found_links.add(complete_url)
 
-    pagination_links = soup.select('nav.paginator > ul > li > a')
-    for page_link in pagination_links:
-        href = str(base_url + page_link['href'])
-        if href not in urls:
-            urls.append(href)
+def get_ad_information(soup):
+    ad_info_keys = ['Views', 'Update Date', 'Ad Type', 'Owner Username']
+    ad_info_values = [
+        extract_text(soup.find('div', class_=f'adPage__aside__stats__{key.lower().replace(" ", "")}'))
+        for key in ad_info_keys[:-1]
+    ]
+    ad_info_values.append(
+        extract_text(soup.find('a', class_='adPage__aside__stats__owner__login'))
+    )
+    return dict(zip(ad_info_keys, [val for val in ad_info_values if val]))
 
-    if current_page == max_pages or current_page >= len(urls) - 1:
-        return found_links
-    else:
-        return scrape_links(max_pages, current_page + 1, urls, found_links)
 
-initial_urls = ["https://999.md/ro/list/phone-and-communication/drones"]
-collected_links = scrape_links(1000, 0, initial_urls, set())
+def get_general_information(soup):
+    return get_information(
+        soup,
+        'div',
+        'adPage__content__features__col',
+        'adPage__content__features__key',
+        'adPage__content__features__value'
+    )
 
-# Writing links to a file
-with open('links.txt', 'w') as file:
-    for link in collected_links:
-        file.write(link + '\n')
+
+def get_features(soup):
+    return get_information(
+        soup,
+        'div',
+        'adPage__content__features__col grid_7 suffix_1',
+        'adPage__content__features__key',
+        'adPage__content__features__value'
+    )
+
+def get_information(soup, container_type, container_class, key_class, value_class):
+    container = soup.find(container_type, class_=container_class)
+    information = {}
+    if container:
+        for item in container.find_all('li'):
+            key = extract_text(item.find('span', class_=key_class))
+            value = extract_text(item.find('span', class_=value_class))
+            if key and value:
+                information[key.strip()] = value.strip()
+    return information
+
+
+def extract_info(URL):
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, "html.parser")
+    dict_result = {
+        'Title': extract_text(soup.find('h1', itemprop='name')),
+        'Description': extract_text(soup.find('div', itemprop='description')),
+        'Price': None,
+        'Location': None,
+        'Ad Info': get_ad_information(soup),
+        'General Info': get_general_information(soup),
+        'Features': get_features(soup)
+    }
+
+    # Handling the price and currency
+    price = extract_text(soup.find('span', class_='adPage__content__price-feature__prices__price__value'))
+    currency = soup.find('span', itemprop='priceCurrency')
+    if price:
+        if 'negociabil' in price:
+            dict_result['Price'] = price
+        elif currency:
+            dict_result['Price'] = f"{price} {currency.get('content')}"
+
+    # Handling the location
+    country = soup.find('meta', itemprop='addressCountry')
+    locality = soup.find('meta', itemprop='addressLocality')
+    if country and locality:
+        dict_result['Location'] = f"{locality.get('content')}, {country.get('content')}"
+
+    print(json.dumps({k: v for k, v in dict_result.items() if v}, indent=4, ensure_ascii=False))
+    return {k: v for k, v in dict_result.items() if v}
+
+
+URL = "https://999.md/ro/81026570"
+extract_info(URL)
