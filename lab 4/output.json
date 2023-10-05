@@ -1,0 +1,30 @@
+[
+    {
+        "name": "2024 BMW M3",
+        "factory": "BMW Manufacturing Co",
+        "price": 115000.0,
+        "description": "The BMW M3 has a madness inside it. Its standard powertrain bottles up 473 horsepower from a twin-turbo straight-six, shoots it through a six-speed manual transmission, and wastes no time delivering it to the rear tires. And that\u00e2\u20ac\u2122s only the start. The M3 Competition, which is only offered with an eight-speed automatic, increases horsepower to 503 and is offered with your choice of rear- or all-wheel drive. With all that power, you\u00e2\u20ac\u2122d think the M3 would be incapable of doing slow, but even when driven at law-abiding speeds, it\u00e2\u20ac\u2122s quite nice. While rivals such as the Cadillac CT4-V Blackwing and Alfa Romeo Giulia Quadrifoglio feel at times more refined and less edgy, there isn\u00e2\u20ac\u2122t a wrong choice among the three brands\u00e2\u20ac\u2122 super sedans. For an even more righteous experience, there\u00e2\u20ac\u2122s the new-for-2024 M3 CS. It sheds an estimated 75 pounds from the base M3 and hammers the pavement with 543 horsepower and all-wheel drive. ",
+        "id": 1
+    },
+    {
+        "name": "2023 Mercedes Benz AMG E63s",
+        "factory": "Mercedes-AMG GmbH",
+        "price": 120000.0,
+        "description": "The 2023 Mercedes-AMG E63 S marks the final chapter in the hot-rod division's Book of Boosted V-8s. The high-performance E-class sedan will likely follow in the tire tracks of the AMG C63, which receives a hybridized powertrain for the 2024 model year. Those looking to purchase an AMG E63 or place a factory order are likely aware that dealers were unable to fulfill orders for 2022 models after suspending sales of most V-8-powered vehicles in the U.S. But the company says its resuming sales for 2023, which is good news because the E63 S is a delightful machine, surging through space with its twin-turbo V8 pumping out 603 thundering horsepower and 627 pound-feet of torque, its multi-clutch nine-speed transmission delivering that power to all four wheels. The super saloon can muster up enough gall to take on most any of today's super sedan, but it's capable of much more than just being a ballistic missile. The wonderfully luxurious cabin can be a serene space for the driver and passengers, and its air suspension can deliver a supple ride at the flick of the mode switch. This duality of personality is a key part of what makes the AMG E63 S so special. This is the E63 S's final production year, and and that specialness will be missed. ",
+        "id": 2
+    },
+    {
+        "name": "2024 Audi RS6",
+        "factory": "Audi Sport GmbH Neckarsulm",
+        "price": 131000.0,
+        "description": "You might think that 591 horsepower would be enough for the Audi RS6 Avant, but apparently, it was not. For 2024, Audi decided to crank the dial, replacing last year's RS6 Avant with a new Performance model that promises a ludicrous 621 ponies. The new variant also weighs less, so acceleration should prove sufficiently brutal. And yet, the RS6 Avant's search for more power changes nothing about its impressive practicality, comfortably seating five in an interior replete with rich materials and plenty of trendy technology. There's plenty of space to store cargo behind the power rear liftgate, too. The RS6 Avant remains a niche choice adrift in a sea of performance-oriented SUVs like the BMW X5 M, as the station wagon's only true competitor comes in the form of the Porsche Panamera Sport Turismo. While the curvaceous look of the Porsche may appeal to some, the RS6 Avant's brawny, hard-edged design is also one of its biggest selling points.",
+        "id": 3
+    },
+    {
+        "name": "2023 BMW M5",
+        "factory": "BMW Manufacturing Co",
+        "price": 122000.0,
+        "description": "Some cars are big-bodied and some are thrilling. The BMW M5 is both, with a body based on the regular 5-series and a heart-and-lung transplant courtesy of the brand's M performance division. Under the hood lives a spectacular 600-hp twin-turbo V-8 bolted to an eight-speed automatic transmission that powers all four wheels. An optional Competition package turns up the heat with 17 extra horsepower, a more soulful exhaust, stiffer suspension, and Competition badging and trim. That version rocketed to 60 mph in 2.8 seconds in our testing. Built to handle the rigors of mountain hairpins, blasts on the autobahn, and everyday life the M5 offers a premium experience with a penchant for fireworks. Unlike its closest competitor, the Cadillac CT5-V Blackwing, the Bimmer's stealthy packaging isn't offset by a thunderous exhaust but its impressive comfort and refinement make it among the best in the premium sports sedan segment. ",
+        "id": 4
+    }
+]
