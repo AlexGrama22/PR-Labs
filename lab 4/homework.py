@@ -15,7 +15,7 @@ class Homework:
             for link in product_links:
                 product_details = self.get_page_content(link)
                 if product_details:
-                    product_details = self.parse_product_page(product_details)  
+                    product_details = self.parse_product_page(product_details)
                     if product_details:
                         product_id = int(link.strip('/product/'))
                         product_details['id'] = product_id
