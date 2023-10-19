@@ -1,97 +1,92 @@
 from flask import Flask, request, jsonify, abort
 import psycopg2
 from flask_swagger_ui import get_swaggerui_blueprint
+from psycopg2 import sql
 
 app = Flask(__name__)
 
-def get_db_connection():
-    conn = psycopg2.connect(
-        database="scooters",
-        user="admin",
-        password="admin",
-        host="localhost",
-        port="5432"
-    )
-    return conn
+class Database:
+    def __init__(self):
+        self.connection = psycopg2.connect(
+            dbname="scooters",
+            user="admin",
+            password="admin",
+            host="localhost",
+            port="5432"
+        )
+
+    def __enter__(self):
+        return self.connection.cursor()
+
+    def __exit__(self, type, value, traceback):
+        self.connection.commit()
+        self.connection.close()
+
+def get_scooter_data(scooter):
+    return {'id': scooter[0], 'name': scooter[1], 'battery_level': scooter[2]}
 
 @app.route('/scooters/', methods=['GET'])
-def list_scooters():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id, name, battery_level FROM scooter")
-    scooters = cur.fetchall()
-    conn.close()
-    return jsonify([{'id': s[0], 'name': s[1], 'battery_level': s[2]} for s in scooters])
+def get_all_scooters():
+    with Database() as cursor:
+        cursor.execute("SELECT id, name, battery_level FROM scooter")
+        return jsonify([get_scooter_data(scooter) for scooter in cursor.fetchall()])
 
 @app.route('/scooters/', methods=['POST'])
-def create_scooter():
-    if not request.json or 'name' not in request.json or 'battery_level' not in request.json:
+def add_scooter():
+    data = request.json
+    if not data or not all(key in data for key in ('name', 'battery_level')):
         abort(400)
-    name = request.json['name']
-    battery_level = request.json['battery_level']
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("INSERT INTO scooter (name, battery_level) VALUES (%s, %s) RETURNING id", (name, battery_level))
-    new_id = cur.fetchone()[0]
-    conn.commit()
-    conn.close()
-    return jsonify({'id': new_id, 'name': name, 'battery_level': battery_level}), 201
 
-@app.route('/scooters/<int:id>', methods=['GET'])
-def get_scooter(id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT id, name, battery_level FROM scooter WHERE id = %s", (id,))
-    scooter = cur.fetchone()
-    conn.close()
+    with Database() as cursor:
+        insert = sql.SQL("INSERT INTO scooter (name, battery_level) VALUES (%s, %s) RETURNING id")
+        cursor.execute(insert, (data['name'], data['battery_level']))
+        new_scooter_id = cursor.fetchone()[0]
+
+    return jsonify({'id': new_scooter_id, **data}), 201
+
+@app.route('/scooters/<int:scooter_id>', methods=['GET'])
+def get_specific_scooter(scooter_id):
+    with Database() as cursor:
+        cursor.execute("SELECT id, name, battery_level FROM scooter WHERE id = %s", (scooter_id,))
+        scooter = cursor.fetchone()
+
     if scooter is None:
         abort(404)
-    return jsonify({'id': scooter[0], 'name': scooter[1], 'battery_level': scooter[2]})
 
-@app.route('/scooters/<int:id>', methods=['PUT'])
-def update_scooter(id):
-    if not request.json:
+    return jsonify(get_scooter_data(scooter))
+
+@app.route('/scooters/<int:scooter_id>', methods=['PUT'])
+def modify_scooter(scooter_id):
+    data = request.json
+    if not data:
         abort(400)
-    name = request.json.get('name')
-    battery_level = request.json.get('battery_level')
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("UPDATE scooter SET name = %s, battery_level = %s WHERE id = %s", (name, battery_level, id))
-    conn.commit()
-    conn.close()
-    return jsonify({'id': id, 'name': name, 'battery_level': battery_level})
 
-@app.route('/scooters/<int:id>', methods=['DELETE'])
-def delete_scooter(id):
-    password = request.headers.get('X-Delete-Password')
-    if password != 'admin':
+    with Database() as cursor:
+        update = sql.SQL("UPDATE scooter SET name = %s, battery_level = %s WHERE id = %s")
+        cursor.execute(update, (data['name'], data['battery_level'], scooter_id))
+
+    return jsonify({'id': scooter_id, **data})
+
+@app.route('/scooters/<int:scooter_id>', methods=['DELETE'])
+def remove_scooter(scooter_id):
+    if request.headers.get('X-Delete-Password') != 'admin':
         return jsonify({"error": "Incorrect password"}), 401
 
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM scooter WHERE id = %s", (id,))
+    with Database() as cursor:
+        cursor.execute("DELETE FROM scooter WHERE id = %s", (scooter_id,))
+        if cursor.rowcount == 0:
+            return jsonify({"error": "Scooter not found"}), 404
 
-    if cur.rowcount == 0:
-        conn.close()
-        return jsonify({"error": "Scooter not found"}), 404
-
-    conn.commit()
-    conn.close()
     return jsonify({"message": "Scooter deleted successfully"}), 200
 
-# Swagger UI setup
-SWAGGER_URL = '/api/docs'
-API_URL = '/static/swagger.json'
-
-swaggerui_blueprint = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Scooter API"
-    }
+# Swagger documentation
+swagger_config = get_swaggerui_blueprint(
+    '/api/docs',
+    '/static/swagger.json',
+    config={'app_name': "Scooter API"}
 )
 
-app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+app.register_blueprint(swagger_config, url_prefix='/api/docs')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
