@@ -3,15 +3,15 @@
   "info": {
     "version": "2.3.0",
     "title": "Electric Scooter Management API",
-    "description": "API for managing electric scooters, including CRUD operations."
+    "description": "API for managing electric scooters via PostgREST."
   },
-  "host": "127.0.0.1:5000",
+  "host": "localhost:3000",
   "basePath": "/",
   "schemes": [
     "http"
   ],
   "paths": {
-    "/scooters/": {
+    "/scooter": {
       "get": {
         "summary": "Retrieve all scooters",
         "description": "Get a list of all available electric scooters along with their details.",
@@ -50,7 +50,7 @@
         }
       }
     },
-    "/scooters/{id}": {
+    "/scooter?id=eq.{id}": {
       "get": {
         "summary": "Get scooter details",
         "description": "Retrieve details of a specific electric scooter by its ID.",
@@ -68,75 +68,6 @@
             "schema": {
               "$ref": "#/definitions/Scooter"
             }
-          },
-          "404": {
-            "description": "Scooter with the specified ID does not exist."
-          }
-        }
-      },
-      "put": {
-        "summary": "Update scooter details",
-        "description": "Modify the details of an existing electric scooter by its ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/ScooterWithoutID"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Scooter details updated successfully.",
-            "schema": {
-              "$ref": "#/definitions/Scooter"
-            }
-          },
-          "404": {
-            "description": "Scooter with the specified ID does not exist."
-          }
-        }
-      },
-      "delete": {
-        "summary": "Remove a scooter",
-        "description": "Delete a specific electric scooter from the system by its ID.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "integer"
-          },
-          {
-            "name": "X-Delete-Password",
-            "in": "header",
-            "description": "Authentication password required for deletion.",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Scooter removed successfully.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - incorrect password."
           },
           "404": {
             "description": "Scooter with the specified ID does not exist."
