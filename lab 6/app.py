@@ -53,5 +53,17 @@ def delete_scooter():
         return jsonify({"message": "Scooter deleted successfully"}), 200
     return jsonify({"error": "Scooter not found"}), 404
 
+@app.route('/scooters/<int:scooter_id>', methods=['PUT'])
+def update_scooter(scooter_id):
+    """Update scooter details"""
+    data = request.json
+    if not data or not any(key in data for key in ('name', 'battery_level')):
+        abort(400)
+
+    response = requests.put(f'{POSTGREST_URL}/scooter?id=eq.{scooter_id}', json=data)
+    if response.status_code != 200:
+        abort(500)
+    return jsonify(response.json()[0])
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

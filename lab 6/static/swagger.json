@@ -72,6 +72,40 @@
           }
         }
       },
+      "put": {
+        "summary": "Update scooter details",
+        "description": "Update the details of a specific electric scooter by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ScooterWithoutID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scooter details updated successfully.",
+            "schema": {
+              "$ref": "#/definitions/Scooter"
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid data."
+          },
+          "500": {
+            "description": "Internal server error. Update failed."
+          }
+        }
+      },
       "delete": {
         "summary": "Delete a scooter",
         "description": "Delete an electric scooter by its ID.",
