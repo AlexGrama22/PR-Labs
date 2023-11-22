@@ -1,0 +1,203 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2.3.0",
+    "title": "Electric Scooter Management API",
+    "description": "API for managing electric scooters via PostgREST."
+  },
+  "host": "localhost:3000",
+  "basePath": "/",
+  "schemes": ["http"],
+  "paths": {
+    "/scooter": {
+      "get": {
+        "summary": "Retrieve all scooters",
+        "description": "Get a list of all available electric scooters along with their details.",
+        "responses": {
+          "200": {
+            "description": "List of scooters retrieved successfully.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Scooter"
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new scooter",
+        "description": "Create a new electric scooter entry with specified name and battery level.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ScooterWithoutID"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "New scooter added successfully.",
+            "schema": {
+              "$ref": "#/definitions/Scooter"
+            }
+          }
+        }
+      }
+    },
+    "/scooter?id=eq.{id}": {
+      "get": {
+        "summary": "Get scooter details",
+        "description": "Retrieve details of a specific electric scooter by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scooter details retrieved successfully.",
+            "schema": {
+              "$ref": "#/definitions/Scooter"
+            }
+          },
+          "404": {
+            "description": "Scooter with the specified ID does not exist."
+          }
+        }
+      },
+      "put": {
+        "summary": "Update scooter details",
+        "description": "Update the details of a specific electric scooter by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ScooterWithoutID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scooter details updated successfully.",
+            "schema": {
+              "$ref": "#/definitions/Scooter"
+            }
+          },
+          "400": {
+            "description": "Bad request. Invalid data."
+          },
+          "500": {
+            "description": "Internal server error. Update failed."
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a scooter",
+        "description": "Delete an electric scooter by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "integer"
+          },
+          {
+            "name": "X-Delete-Password",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Password for deletion authorization"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Scooter deleted successfully.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Scooter deleted successfully"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Incorrect password.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Incorrect password"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Scooter with the specified ID does not exist.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "string",
+                  "example": "Scooter not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Scooter": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "Unique identifier for the electric scooter."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name or model of the electric scooter."
+        },
+        "battery_level": {
+          "type": "number",
+          "format": "float",
+          "description": "Current battery level as a percentage."
+        }
+      }
+    },
+    "ScooterWithoutID": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name or model of the electric scooter."
+        },
+        "battery_level": {
+          "type": "number",
+          "format": "float",
+          "description": "Initial battery level as a percentage."
+        }
+      },
+      "required": ["name", "battery_level"]
+    }
+  }
+}
