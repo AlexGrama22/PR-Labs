@@ -44,6 +44,9 @@
             "schema": {
               "$ref": "#/definitions/Scooter"
             }
+          },
+          "403": {
+            "description": "Forbidden. You don't have permission to create scooters."
           }
         }
       }
@@ -87,7 +90,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/ScooterWithoutID"
+              "$ref": "#/definitions/Scooter"
             }
           }
         ],
@@ -100,6 +103,9 @@
           },
           "400": {
             "description": "Bad request. Invalid data."
+          },
+          "403": {
+            "description": "Forbidden. You don't have permission to update this scooter."
           },
           "500": {
             "description": "Internal server error. Update failed."
@@ -149,6 +155,9 @@
               }
             }
           },
+          "403": {
+            "description": "Forbidden. You don't have permission to delete this scooter."
+          },
           "404": {
             "description": "Scooter with the specified ID does not exist.",
             "schema": {
@@ -182,7 +191,8 @@
           "format": "float",
           "description": "Current battery level as a percentage."
         }
-      }
+      },
+      "required": ["name", "battery_level", "id"]
     },
     "ScooterWithoutID": {
       "type": "object",

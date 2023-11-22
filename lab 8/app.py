@@ -64,8 +64,8 @@ def add_scooter():
     data = request.json
 
     if not is_leader:
-        response = forward_to_leader('POST', '/scooters/', data)
-        return jsonify(response.json()), response.status_code
+        # Reject write request on followers
+        return jsonify({"error": "Access denied"}), 403
 
     if not data or not all(key in data for key in ('name', 'battery_level')):
         abort(400)
@@ -92,9 +92,8 @@ def get_specific_scooter(scooter_id):
 @app.route('/scooters/<int:scooter_id>', methods=['DELETE'])
 def delete_scooter(scooter_id):
     if not is_leader:
-        params = {'id': scooter_id}
-        response = forward_to_leader('DELETE', f'/scooters/{scooter_id}', params=params)
-        return jsonify(response.json()), response.status_code
+        # Reject write request on followers
+        return jsonify({"error": "Access denied"}), 403
 
     delete_password = request.headers.get('X-Delete-Password')
     if not delete_password or delete_password != "admin":
@@ -114,11 +113,13 @@ def update_scooter(scooter_id):
     data = request.json
 
     if not is_leader:
-        response = forward_to_leader('PUT', f'/scooters/{scooter_id}', data)
-        return jsonify(response.json()), response.status_code
+        return jsonify({"error": "Access denied"}), 403
 
     if not data:
         abort(400)
+
+    # Exclude 'id' from the data if it's present
+    data.pop('id', None)
 
     response = requests.put(f'{POSTGREST_URL}/scooter?id=eq.{scooter_id}', json=data)
     if response.status_code != 200:
@@ -128,8 +129,6 @@ def update_scooter(scooter_id):
     notify_followers({'action': 'update', 'scooter_id': scooter_id, 'data': updated_scooter})
 
     return jsonify(updated_scooter)
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
